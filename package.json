@@ -6,7 +6,10 @@
   "directories": {
     "test": "tests"
   },
-  "scripts": {},
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:unit": "echo \"Unit tests will be here\" && exit 0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Sajid788/edgistify-Assignment.git"
