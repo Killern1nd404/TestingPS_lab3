@@ -17,6 +17,7 @@ const Signup = () => {
       const response = await signup({ fullName, email, password });
       toast.success(response.data.message);
       setTimeout(() => navigate("/login"), 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "An unexpected error occurred");
     }
