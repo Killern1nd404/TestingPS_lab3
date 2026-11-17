@@ -1,0 +1,26 @@
+{
+  "name": "edgistify-assignment",
+  "version": "1.0.0",
+  "description": "This is a full-stack e-commerce platform that allows users to register, log in, add products to their cart, and place orders. The application consists of: - A **frontend** built with React and TypeScript. - A **backend** built with Node.js, Express, and MongoDB. - JWT-based authentication and bcrypt for password hashing.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sajid788/edgistify-Assignment.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Sajid788/edgistify-Assignment/issues"
+  },
+  "homepage": "https://github.com/Sajid788/edgistify-Assignment#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6"
+  }
+}
