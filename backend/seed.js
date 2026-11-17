@@ -1,42 +1,42 @@
-// backend/seed.js
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Product = require('./models/ProductModel');
+const ProductModel = require('./models/ProductModel'); // Убедитесь, что путь правильный!
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/edgistify';
 
 const products = [
   {
     title: "CI Test T-Shirt",
-    price: 25,
-    images: ["https://via.placeholder.com/250"],
-    sizes: ["S", "M", "L"], // Оставляем, так как фронтенд это использует
-    brand: "TestBrand",
-    rating: 4.5,
-    reviews: "10",
+    category: "clothing",
     description: "Nice shirt",
+    brand: "TestBrand",
+    price: 25,
+    rating: 4.5,
+    images: ["https://via.placeholder.com/250"],
+    quantity: 10,
+    size: "M",
+    // Поля ниже нужны фронтенду, даже если их нет в схеме:
+    sizes: ["S", "M", "L"], 
+    reviews: "10",
     originalPrice: 30,
     discount: 5,
-    img1: "https://via.placeholder.com/250",
-    size: "M", 
-    quantity: 10,
-    category: "clothing"
+    img1: "https://via.placeholder.com/250"
   },
   {
     title: "CI Test Jeans",
-    price: 50,
-    images: ["https://via.placeholder.com/250"],
-    sizes: ["M", "L", "XL"],
-    brand: "TestBrand",
-    rating: 4.0,
-    reviews: "5",
+    category: "clothing",
     description: "Nice jeans",
+    brand: "TestBrand",
+    price: 50,
+    rating: 4.0,
+    images: ["https://via.placeholder.com/250"],
+    quantity: 5,
+    size: "L",
+    sizes: ["M", "L", "XL"],
+    reviews: "5",
     originalPrice: 60,
     discount: 10,
-    img1: "https://via.placeholder.com/250",
-    size: "L",
-    quantity: 5,
-    category: "clothing"
+    img1: "https://via.placeholder.com/250"
   }
 ];
 
@@ -45,11 +45,11 @@ async function seedDatabase() {
     await mongoose.connect(MONGO_URI);
     console.log('MongoDB connected for seeding...');
     
-    // Очищаем старые товары (чтобы не было дублей)
-    await Product.deleteMany({});
+    // Очищаем старые товары
+    await ProductModel.deleteMany({});
     
     // Вставляем новые
-    await Product.insertMany(products);
+    await ProductModel.insertMany(products);
     console.log('Database seeded successfully!');
     
     await mongoose.connection.close();
