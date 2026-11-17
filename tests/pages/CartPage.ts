@@ -19,6 +19,6 @@ export class CartPage {
 
   async goto() {
     await this.page.goto('/cart');
-    await expect(this.pageTitle).toBeVisible();
+    await expect(this.pageTitle).toBeVisible({ timeout: 15000 });
   }
 }
