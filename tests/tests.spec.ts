@@ -72,6 +72,8 @@ test.describe('Сценарии магазина (Корзина и Заказ)'
   
   test('Выход из системы (Logout)', async ({ page }) => {
     await page.goto('/');
+
+    await expect(page.getByRole('link', { name: 'Home' })).toBeVisible({ timeout: 15000 });
     
     const navbar = new Navbar(page);
 
