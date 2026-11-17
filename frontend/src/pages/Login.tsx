@@ -23,6 +23,7 @@ const Login = () => {
 
       toast.success(message);
       setTimeout(() => navigate("/"), 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "An unexpected error occurred"
