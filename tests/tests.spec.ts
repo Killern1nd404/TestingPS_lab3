@@ -25,7 +25,15 @@ test.describe('Сценарии магазина (Корзина и Заказ)'
 
   test('Поиск товара и добавление в корзину', async ({ page }) => {
     const homePage = new HomePage(page);
-    await homePage.goto();
+    //await homePage.goto();
+
+    await page.goto('/products');
+    await page.waitForTimeout(3000); 
+
+    console.log("====== HTML СТРАНИЦЫ /products ======");
+    console.log(await page.content()); 
+    console.log("=====================================");
+
     await expect(homePage.productCards.first()).toBeVisible({ timeout: 15000 });
     
     await homePage.addFirstProductToCart();
