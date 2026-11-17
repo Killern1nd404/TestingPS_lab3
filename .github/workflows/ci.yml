@@ -86,9 +86,13 @@ jobs:
       working-directory: ./frontend
       run: npm run dev &
 
-    # Ждем, пока сервера поднимутся
     - name: Ожидание запуска серверов
       run: npx wait-on http://localhost:5173 http://localhost:5000/api/products --timeout 60000
+
+    # НОВЫЙ ШАГ: Наполняем базу данными
+    - name: Наполнение базы тестовыми данными
+      working-directory: ./backend
+      run: node seed.js
 
     - name: Запуск E2E тестов
       run: npx playwright test
