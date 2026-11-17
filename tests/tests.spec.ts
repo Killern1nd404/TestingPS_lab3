@@ -24,16 +24,19 @@ test.describe('Сценарии магазина (Корзина и Заказ)'
   });
 
   test('Поиск товара и добавление в корзину', async ({ page }) => {
+    page.on('console', msg => {
+      if (msg.type() === 'error') console.log('BROWSER ERROR:', msg.text());
+    });
+    
+    // Слушаем необработанные исключения
+    page.on('pageerror', error => {
+      console.log('PAGE ERROR:', error.message);
+    });
+    
     const homePage = new HomePage(page);
-    //await homePage.goto();
+    await homePage.goto();
 
     await page.goto('/products');
-    await page.waitForTimeout(3000); 
-
-    console.log("====== HTML СТРАНИЦЫ /products ======");
-    console.log(await page.content()); 
-    console.log("=====================================");
-
     await expect(homePage.productCards.first()).toBeVisible({ timeout: 15000 });
     
     await homePage.addFirstProductToCart();
