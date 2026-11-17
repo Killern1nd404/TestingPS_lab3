@@ -27,7 +27,7 @@ function Products() {
         const response = await getProducts();
         // Защита: если response.data не массив, делаем пустой массив
         setProducts(Array.isArray(response.data) ? response.data : []);
-      } catch (error) {
+      } catch {
         toast.error("Failed to fetch products");
       } finally {
         setLoading(false);
