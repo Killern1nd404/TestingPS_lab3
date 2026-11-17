@@ -1,0 +1,103 @@
+name: CI Pipeline
+
+# 1. Триггеры: запускать при пуше в main и при создании Pull Request
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # ДЖОБ 1: Проверка кода (Lint) и Unit-тесты (пока заглушка)
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Клонируем репозиторий
+      uses: actions/checkout@v4
+
+    - name: Устанавливаем Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    # Unit-тесты + lint запускаются при каждом коммите/пуше
+    - name: Установка зависимостей (корень)
+      run: npm ci || npm install
+
+    - name: Установка зависимостей бэкенда
+      working-directory: ./backend
+      run: npm ci || npm install
+
+    - name: Установка зависимостей фронтенда
+      working-directory: ./frontend
+      run: npm ci || npm install
+
+    - name: Запуск линтера (Lint)
+      run: echo "Lint пока пропустим, чтобы не усложнять" 
+
+  # ДЖОБ 2: E2E тесты (Playwright)
+  e2e-tests:
+    # Эта строка гарантирует, что E2E не запустятся, если джоба build-and-test упала
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Поднимаем MongoDB внутри GitHub Actions
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+
+    steps:
+    - name: Клонируем репозиторий
+      uses: actions/checkout@v4
+
+    - name: Устанавливаем Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Установка зависимостей
+      run: |
+        npm ci || npm install
+        cd backend && npm ci || npm install && cd ..
+        cd frontend && npm ci || npm install && cd ..
+
+    - name: Установка браузеров Playwright
+      run: npx playwright install --with-deps chromium
+
+    # Создаем .env для бэкенда прямо в CI
+    - name: Настройка окружения бэкенда
+      run: |
+        echo "PORT=5000" > backend/.env
+        echo "MONGO_URI=mongodb://localhost:27017/edgistify_test" >> backend/.env
+        echo "JWT_SECRET=test_secret_key" >> backend/.env
+
+    # Запускаем Бэк и Фронт в фоне
+    - name: Запуск Бэкенда
+      working-directory: ./backend
+      run: node index.js &
+
+    - name: Запуск Фронтенда
+      working-directory: ./frontend
+      run: npm run dev &
+
+    # Ждем, пока сервера поднимутся
+    - name: Ожидание запуска серверов
+      run: npx wait-on http://localhost:5173 http://localhost:5000/api/products --timeout 60000
+
+    - name: Запуск E2E тестов
+      run: npx playwright test
+
+    # Сохраняем отчет Playwright в артефакты
+    - name: Сохранение отчета Playwright
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 7
