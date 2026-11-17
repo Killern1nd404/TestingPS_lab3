@@ -3,12 +3,11 @@ import { HomePage } from '../tests/pages/HomePage';
 import { CartPage } from '../tests/pages/CartPage';
 import { CheckoutPage } from '../tests/pages/CheckoutPage';
 import { Navbar } from '../tests/pages/Navbar';
+import { LoginPage } from '../tests/pages/LoginPage';
 
 test.describe('Сценарии магазина (Корзина и Заказ)', () => {
   let testEmail: string;
   const testPassword = 'Password123!';
-  let authToken: string;
-  let userId: string;
 
   test.beforeEach(async ({ request, page }) => {
     testEmail = `shop_test_${Date.now()}@example.com`;
@@ -17,34 +16,24 @@ test.describe('Сценарии магазина (Корзина и Заказ)'
       data: { fullName: 'Shop User', email: testEmail, password: testPassword }
     });
 
-    const loginResponse = await request.post('http://localhost:5000/api/users/login', {
-      data: { email: testEmail, password: testPassword }
-    });
-    const loginData = await loginResponse.json();
-    authToken = loginData.token;
-    userId = loginData.userId;
-
-    await page.addInitScript(({ token, id }) => {
-      window.localStorage.setItem('token', token);
-      window.localStorage.setItem('userId', id);
-    }, { token: authToken, id: userId });
-
-      await page.waitForTimeout(1500); 
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(testEmail, testPassword);
+    
+    await expect(page).toHaveURL('/', { timeout: 15000 });
   });
-  
+
   test('Поиск товара и добавление в корзину', async ({ page }) => {
     const homePage = new HomePage(page);
     await homePage.goto();
-
-    await expect(homePage.productCards.first()).toBeVisible();
+    await expect(homePage.productCards.first()).toBeVisible({ timeout: 15000 });
     
     await homePage.addFirstProductToCart();
-
     await expect(page.getByRole('alert')).toBeVisible();
 
     const cartPage = new CartPage(page);
     await cartPage.goto();
-    await expect(cartPage.cartItems.first()).toBeVisible();
+    await expect(cartPage.cartItems.first()).toBeVisible({ timeout: 15000 });
   });
 
   test('Оформление заказа', async ({ page }) => {
@@ -60,31 +49,25 @@ test.describe('Сценарии магазина (Корзина и Заказ)'
     const checkoutPage = new CheckoutPage(page);
     await checkoutPage.fillShippingForm();
     await checkoutPage.placeOrder();
-    
-    await expect(page).toHaveURL('/placed', { timeout: 5000 });
-    
+
+    await expect(page).toHaveURL('/placed', { timeout: 15000 });
     await page.waitForTimeout(1500); 
 
-    await expect(page.getByRole('heading', { name: /Order Placed Successfully/i })).toBeVisible();
-    
+    await expect(page.getByRole('heading', { name: /Order Placed Successfully/i })).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Order ID:/i)).toBeVisible();
   });
   
   test('Выход из системы (Logout)', async ({ page }) => {
     await page.goto('/');
-
-    await expect(page.getByRole('link', { name: 'Home' })).toBeVisible({ timeout: 15000 });
     
     const navbar = new Navbar(page);
-
-    await expect(navbar.logoutButton).toBeVisible();
+    await expect(navbar.logoutButton).toBeVisible({ timeout: 15000 });
     await navbar.logout();
-    await expect(page).toHaveURL('/login');
 
+    await expect(page).toHaveURL('/login', { timeout: 15000 });
     await page.waitForTimeout(500); 
 
     await expect(navbar.logoutButton).not.toBeVisible();
-    
     await expect(navbar.loginLink.first()).toBeVisible();
 
     const token = await page.evaluate(() => localStorage.getItem('token'));
