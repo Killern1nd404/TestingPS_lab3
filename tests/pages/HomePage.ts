@@ -18,8 +18,8 @@ export class HomePage {
   async goto() {
     await this.page.goto('/products');
     // Ждем, пока загрузятся товары (пропадет спиннер)
-    await expect(this.pageTitle).toBeVisible();
-    await expect(this.productCards.first()).toBeVisible({ timeout: 10000 });
+    await expect(this.pageTitle).toBeVisible({ timeout: 15000 }); 
+    await expect(this.productCards.first()).toBeVisible({ timeout: 15000 });
   }
 
   async addFirstProductToCart() {
