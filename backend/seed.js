@@ -1,7 +1,7 @@
 // backend/seed.js
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Product = require('./models/Product'); // Убедитесь, что путь правильный!
+const Product = require('./models/ProductModel');
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/edgistify';
 
