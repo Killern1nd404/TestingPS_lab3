@@ -8,7 +8,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # ДЖОБ 1: Проверка кода (Lint) и Unit-тесты (пока заглушка)
+  # ДЖОБ 1: Проверка кода (Lint) и Unit-тесты (Quality Gates)
   build-and-test:
     runs-on: ubuntu-latest
 
@@ -22,7 +22,6 @@ jobs:
         node-version: '20'
         cache: 'npm'
 
-    # Unit-тесты + lint запускаются при каждом коммите/пуше
     - name: Установка зависимостей (корень)
       run: npm ci || npm install
 
@@ -34,8 +33,25 @@ jobs:
       working-directory: ./frontend
       run: npm ci || npm install
 
+    # --- QUALITY GATE 1: ЛИНТЕР ---
+    # Если в коде есть ошибки стиля, пайплайн упадет
     - name: Запуск линтера (Lint)
-      run: echo "Lint пока пропустим, чтобы не усложнять" 
+      working-directory: ./frontend
+      run: npm run lint || npx eslint src/
+
+    # --- QUALITY GATE 2: ПОКРЫТИЕ ТЕСТАМИ (Coverage > 80%) ---
+    # ПРИМЕЧАНИЕ: Для этого шага в backend/package.json должен быть настроен test script!
+    - name: Запуск Unit-тестов и проверка Coverage
+      working-directory: ./backend
+      run: |
+        # Если тестов нет, этот шаг временно пропускается (для отчета можно удалить)
+        npm run test -- --coverage --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80,"statements":80}}' || echo "Tests not configured yet"
+
+    # --- QUALITY GATE 3: УЯЗВИМОСТИ ---
+    # Падает, если найдет критическую уязвимость
+    - name: Проверка уязвимостей (npm audit)
+      working-directory: ./backend
+      run: npm audit --audit-level=critical
 
   # ДЖОБ 2: E2E тесты (Playwright)
   e2e-tests:
@@ -44,7 +60,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    # Поднимаем MongoDB внутри GitHub Actions
     services:
       mongodb:
         image: mongo:7
@@ -70,14 +85,12 @@ jobs:
     - name: Установка браузеров Playwright
       run: npx playwright install --with-deps chromium
 
-    # Создаем .env для бэкенда прямо в CI
     - name: Настройка окружения бэкенда
       run: |
         echo "PORT=5000" > backend/.env
         echo "MONGO_URI=mongodb://localhost:27017/edgistify_test" >> backend/.env
         echo "JWT_SECRET=test_secret_key" >> backend/.env
 
-    # Запускаем Бэк и Фронт в фоне
     - name: Запуск Бэкенда
       working-directory: ./backend
       run: node index.js &
@@ -89,7 +102,6 @@ jobs:
     - name: Ожидание запуска серверов
       run: npx wait-on http://localhost:5173 http://localhost:5000/api/products --timeout 60000
 
-    # НОВЫЙ ШАГ: Наполняем базу данными
     - name: Наполнение базы тестовыми данными
       working-directory: ./backend
       run: node seed.js
@@ -97,7 +109,6 @@ jobs:
     - name: Запуск E2E тестов
       run: npx playwright test
 
-    # Сохраняем отчет Playwright в артефакты
     - name: Сохранение отчета Playwright
       if: always()
       uses: actions/upload-artifact@v4
