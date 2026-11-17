@@ -28,10 +28,10 @@ test.describe('Сценарии магазина (Корзина и Заказ)'
       window.localStorage.setItem('token', token);
       window.localStorage.setItem('userId', id);
     }, { token: authToken, id: userId });
+
+      await page.waitForTimeout(1500); 
   });
-
-  await page.waitForTimeout(1500); 
-
+  
   test('Поиск товара и добавление в корзину', async ({ page }) => {
     const homePage = new HomePage(page);
     await homePage.goto();
