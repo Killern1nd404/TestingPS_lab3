@@ -10,14 +10,17 @@ const products = [
     title: "CI Test T-Shirt",
     price: 25,
     images: ["https://via.placeholder.com/250"],
-    sizes: ["S", "M", "L"],
+    sizes: ["S", "M", "L"], // Оставляем, так как фронтенд это использует
     brand: "TestBrand",
     rating: 4.5,
     reviews: "10",
     description: "Nice shirt",
     originalPrice: 30,
     discount: 5,
-    img1: "https://via.placeholder.com/250"
+    img1: "https://via.placeholder.com/250",
+    size: "M", 
+    quantity: 10,
+    category: "clothing"
   },
   {
     title: "CI Test Jeans",
@@ -30,7 +33,10 @@ const products = [
     description: "Nice jeans",
     originalPrice: 60,
     discount: 10,
-    img1: "https://via.placeholder.com/250"
+    img1: "https://via.placeholder.com/250",
+    size: "L",
+    quantity: 5,
+    category: "clothing"
   }
 ];
 
